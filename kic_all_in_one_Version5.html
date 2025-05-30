@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>KIC All-in-One Stock & PMA</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      font-family: Tahoma, Arial, sans-serif;
+      background-color: #121212;
+      color: #eee;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 40px auto 0 auto;
+      background: #1f1f1f;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 4px 20px rgba(255,255,255,0.1);
+    }
+    .center { text-align: center; }
+    h1 { color: #ff4757; margin-bottom: 22px; text-align: center; }
+    button, .btn {
+      background-color: #ff4757;
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      padding: 10px 22px;
+      font-size: 1.1em;
+      margin: 6px 0;
+    }
+    button:hover, .btn:hover { background-color: #d63031; }
+    .logout-btn {
+      float: right;
+      max-width: 100px;
+      margin-top: -15px;
+      margin-bottom: 5px;
+      background: #2d3436;
+      color: #ff4757;
+    }
+    .nav-btns {
+      display: flex;
+      gap: 25px;
+      justify-content: center;
+      margin: 40px 0 0 0;
+    }
+    .nav-btns button { font-size: 1.07em; }
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: 600;
+    }
+    input, select, textarea {
+      width: 100%;
+      max-width: 400px;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #444;
+      background: #222;
+      color: #eee;
+      font-size: 1rem;
+      box-sizing: border-box;
+      margin-top: 5px;
+      resize: vertical;
+    }
+    textarea { min-height: 54px; }
+    #login-section {
+      max-width: 400px;
+      background: #1f1f1f;
+      margin: 100px auto 0 auto;
+      padding: 30px 40px;
+      border-radius: 15px;
+      box-sizing: border-box;
+      box-shadow: 0 4px 20px rgba(255,255,255,0.08);
+    }
+    #login-section h2 { color: #ff4757; }
+    .hidden { display: none !important; }
+    table {
+      width: 100%;
+      margin-top: 30px;
+      border-collapse: collapse;
+      font-size: 0.95rem;
+      background: #1f1f1f;
+      color: #eee;
+    }
+    th, td {
+      border: 1px solid #444;
+      padding: 10px 8px;
+      text-align: center;
+    }
+    th {
+      background-color: #ff4757;
+      text-transform: uppercase;
+    }
+    tbody tr:nth-child(even) {
+      background-color: #232323;
+    }
+    img.product-image, img.pma-ng-img {
+      max-width: 85px;
+      max-height: 60px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+    img.product-image:hover, img.pma-ng-img:hover {
+      transform: scale(1.1);
+    }
+    .unit-use-red {
+      color: #ff6b6b;
+      font-weight: bold;
+    }
+    .unit-use-green {
+      color: #2ed573;
+      font-weight: bold;
+    }
+    .status-complete {
+      color: #2ed573;
+      font-weight: 700;
+    }
+    .status-notcomplete {
+      color: #ff6b6b;
+      font-weight: 700;
+    }
+    input.edit-unitUse {
+      width: 60px;
+      background: #222;
+      border: 1px solid #444;
+      border-radius: 6px;
+      color: #eee;
+      text-align: center;
+      font-size: 0.9rem;
+    }
+    #lightboxOverlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.85);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    #lightboxOverlay img {
+      max-width: 90vw;
+      max-height: 90vh;
+      border-radius: 12px;
+      box-shadow: 0 0 30px rgba(255,255,255,0.3);
+    }
+    #lightboxCloseBtn {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #ff4757;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      font-size: 1.5rem;
+      cursor: pointer;
+      z-index: 1001;
+      line-height: 0;
+      padding: 0;
+    }
+    .pma-ng-action-btn {
+      background: #636e72;
+      color: #fff;
+      font-size: 1.05em;
+      padding: 5px 12px;
+      margin: 0 2px;
+      border-radius: 5px;
+    }
+    .pma-ng-action-btn:hover {
+      background: #636e72cc;
+    }
+    .pma-hr {
+      border: none;
+      border-top: 1px solid #555;
+      margin: 28px 0 18px 0;
+    }
+    .pma-list-header {
+      margin-top: 32px;
+      color: #ff4757;
+      font-size: 1.13em;
+      font-weight: 700;
+      text-align: left;
+    }
+    .pma-report-card {
+      background: #232323;
+      border-radius: 10px;
+      margin: 18px 0;
+      padding: 14px 18px;
+      box-shadow: 0 0 10px #2228;
+    }
+    .pma-report-card h3 {
+      color: #ff4757; margin-top: 0;
+    }
+    @media (max-width: 600px) {
+      .container { padding: 8px; }
+      input, select, textarea { max-width: 99vw; }
+      table { font-size: 0.87rem; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Login Section -->
+  <div class="container" id="login-section">
+    <h2>Login</h2>
+    <input id="username" type="text" placeholder="Username" autocomplete="off" />
+    <input id="password" type="password" placeholder="Password" autocomplete="off" />
+    <button onclick="login()">Log In</button>
+  </div>
+
+  <!-- Section Selection -->
+  <div class="container hidden" id="select-section">
+    <button class="logout-btn" onclick="logout()">Log Out</button>
+    <h1>Welcome to KIC Stock & PMA System</h1>
+    <div class="nav-btns">
+      <button onclick="setPage('tester')">KIC Tester Product Stock</button>
+      <button onclick="setPage('junk')">KIC Junk Product Stock</button>
+      <button onclick="setPage('pma')">PMA Report</button>
+    </div>
+  </div>
+
+  <!-- Tester Product Stock Section -->
+  <div class="container hidden" id="tester-section">
+    <button class="logout-btn" onclick="logout()">Log Out</button>
+    <button onclick="setPage('select')">&larr; Back</button>
+    <h1>KIC Tester Product Stock</h1>
+    <form id="tester-form" autocomplete="off">
+      <label for="tester-model">Select Model:</label>
+      <select id="tester-model" required>
+        <option value="" disabled selected>Select a model</option>
+        <option value="TCT-SUZAKU">TCT-SUZAKU</option>
+        <option value="SUZAKU RACK">SUZAKU RACK</option>
+        <option value="FT SUZAKU">FT SUZAKU</option>
+      </select>
+      <label for="tester-imgInput">Upload Image:</label>
+      <input type="file" id="tester-imgInput" accept="image/*" />
+      <label for="tester-partItem">Part Item (exactly 11 characters):</label>
+      <input type="text" id="tester-partItem" placeholder="Enter part item (11 characters)" maxlength="11" />
+      <label for="tester-productName">Product Name:</label>
+      <input type="text" id="tester-productName" placeholder="Enter product name" />
+      <label for="tester-unit">Unit:</label>
+      <input type="number" id="tester-unit" min="0" placeholder="Enter unit quantity" />
+      <label for="tester-unitUse">Unit Use:</label>
+      <input type="number" id="tester-unitUse" min="0" placeholder="Enter unit used quantity" />
+      <button type="submit">Add Product</button>
+      <button type="button" onclick="downloadTxt('tester')">Download TXT</button>
+      <button type="button" onclick="downloadCSV('tester')">Download CSV</button>
+    </form>
+    <table>
+      <thead>
+        <tr>
+          <th>Model</th>
+          <th>Image</th>
+          <th>Part Item</th>
+          <th>Product Name</th>
+          <th>Unit</th>
+          <th>Unit Use (Editable)</th>
+          <th>Stock Balance</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="tester-productList"></tbody>
+    </table>
+  </div>
+
+  <!-- Junk Product Stock Section -->
+  <div class="container hidden" id="junk-section">
+    <button class="logout-btn" onclick="logout()">Log Out</button>
+    <button onclick="setPage('select')">&larr; Back</button>
+    <h1>KIC Junk Product Stock</h1>
+    <form id="junk-form" autocomplete="off">
+      <label for="junk-model">Select Model:</label>
+      <select id="junk-model" required>
+        <option value="" disabled selected>Select a model</option>
+        <option value="TCT-SUZAKU">TCT-SUZAKU</option>
+        <option value="SUZAKU RACK">SUZAKU RACK</option>
+        <option value="FT SUZAKU">FT SUZAKU</option>
+      </select>
+      <label for="junk-imgInput">Upload Image:</label>
+      <input type="file" id="junk-imgInput" accept="image/*" />
+      <label for="junk-partItem">Part Item (exactly 11 characters):</label>
+      <input type="text" id="junk-partItem" placeholder="Enter part item (11 characters)" maxlength="11" />
+      <label for="junk-productName">Product Name:</label>
+      <input type="text" id="junk-productName" placeholder="Enter product name" />
+      <label for="junk-unit">Unit:</label>
+      <input type="number" id="junk-unit" min="0" placeholder="Enter unit quantity" />
+      <label for="junk-unitUse">Unit Use:</label>
+      <input type="number" id="junk-unitUse" min="0" placeholder="Enter unit used quantity" />
+      <button type="submit">Add Product</button>
+      <button type="button" onclick="downloadTxt('junk')">Download TXT</button>
+      <button type="button" onclick="downloadCSV('junk')">Download CSV</button>
+    </form>
+    <table>
+      <thead>
+        <tr>
+          <th>Model</th>
+          <th>Image</th>
+          <th>Part Item</th>
+          <th>Product Name</th>
+          <th>Unit</th>
+          <th>Unit Use (Editable)</th>
+          <th>Stock Balance</th>
+          <th>Status</th>
+          <th>PMA</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="junk-productList"></tbody>
+    </table>
+  </div>
+
+  <!-- PMA Report Section -->
+  <div class="container hidden" id="pma-section">
+    <button class="logout-btn" onclick="logout()">Log Out</button>
+    <button onclick="setPage('select')">&larr; Back</button>
+    <h1>PMA Report</h1>
+    <form id="pma-form" autocomplete="off">
+      <label for="pma-product">Product Name (auto-filled from Junk):</label>
+      <input type="text" id="pma-product" required />
+      <label for="pma-model">Model:</label>
+      <select id="pma-model" required>
+        <option value="" disabled selected>Select model</option>
+        <option value="TCT-SUZAKU">TCT-SUZAKU</option>
+        <option value="SUZAKU RACK">SUZAKU RACK</option>
+        <option value="FT SUZAKU">FT SUZAKU</option>
+      </select>
+      <label for="pma-partitem">Part Item:</label>
+      <input type="text" id="pma-partitem" maxlength="11" required />
+      <hr class="pma-hr" />
+      <div class="pma-list-header">NG List (Add rows for each NG item):</div>
+      <table>
+        <thead>
+          <tr>
+            <th>NG No.</th>
+            <th>Description</th>
+            <th>Action</th>
+            <th>Image</th>
+            <th>Remove</th>
+          </tr>
+        </thead>
+        <tbody id="pma-ng-list"></tbody>
+      </table>
+      <button type="button" class="pma-ng-action-btn" onclick="addPmaNgRow()">+ Add NG Row</button>
+      <hr class="pma-hr" />
+      <label for="pma-action">Action Taken:</label>
+      <textarea id="pma-action" required></textarea>
+      <label for="pma-conclusion">Conclusion:</label>
+      <textarea id="pma-conclusion" required></textarea>
+      <label for="pma-sign-investigator">Investigator Signature:</label>
+      <input type="text" id="pma-sign-investigator" required />
+      <label for="pma-sign-qa">QA Signature:</label>
+      <input type="text" id="pma-sign-qa" required />
+      <div class="center" style="margin-top:20px;">
+        <button type="submit">Save PMA Report</button>
+        <button type="button" onclick="exportPmaPDF()" style="background:#636e72; margin-left:10px;">Export as PDF (coming soon)</button>
+      </div>
+    </form>
+    <hr class="pma-hr" />
+    <div class="pma-list-header">Saved PMA Reports</div>
+    <div id="pma-reports-list"></div>
+  </div>
+
+  <!-- Lightbox for images -->
+  <div id="lightboxOverlay">
+    <button id="lightboxCloseBtn" aria-label="Close Image">&times;</button>
+    <img id="lightboxImage" src="" alt="Expanded image" />
+  </div>
+
+  <script>
+    let currentPage = 'login';
+    const VALID_USERNAME = "admin";
+    const VALID_PASSWORD = "1234";
+    let pmaPrefillData = null;
+
+    // TESTER
+    let testerProducts = JSON.parse(localStorage.getItem('testerProducts') || "[]");
+    function saveAndRenderTester() {
+      localStorage.setItem('testerProducts', JSON.stringify(testerProducts));
+      renderTesterList();
+    }
+    function clearTesterInputs() {
+      document.getElementById('tester-model').selectedIndex = 0;
+      document.getElementById('tester-imgInput').value = '';
+      document.getElementById('tester-partItem').value = '';
+      document.getElementById('tester-productName').value = '';
+      document.getElementById('tester-unit').value = '';
+      document.getElementById('tester-unitUse').value = '';
+    }
+    function renderTesterList() {
+      const tbody = document.getElementById("tester-productList");
+      tbody.innerHTML = "";
+      testerProducts.forEach((product, index) => {
+        const balance = product.unit - product.unitUse;
+        const statusComplete = balance === 0;
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${product.model}</td>
+          <td>
+            ${product.imgURL
+              ? `<img class="product-image" src="${product.imgURL}" alt="${product.name}" data-index="${index}" />`
+              : `<span style="color:#666;">No image</span>`
+            }
+          </td>
+          <td>${product.partItem}</td>
+          <td>${product.name}</td>
+          <td>${product.unit}</td>
+          <td>
+            <input
+              class="edit-unitUse"
+              type="number"
+              min="0"
+              max="${product.unit}"
+              value="${product.unitUse}"
+              data-index="${index}"
+            />
+          </td>
+          <td class="${balance === 0 ? 'unit-use-green' : 'unit-use-red'}">${balance}</td>
+          <td class="${statusComplete ? 'status-complete' : 'status-notcomplete'}">
+            ${statusComplete ? "Complete" : "Not Complete"}
+          </td>
+          <td><button onclick="deleteTesterProduct(${index})" style="background:#ff6b6b; padding:5px 10px; border:none; border-radius:5px; cursor:pointer;">Delete</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+      document.querySelectorAll("#tester-productList .edit-unitUse").forEach(input => {
+        input.onchange = function () {
+          const idx = parseInt(this.getAttribute("data-index"));
+          let newVal = parseInt(this.value);
+          if (isNaN(newVal) || newVal < 0) { this.value = testerProducts[idx].unitUse; return;}
+          if (newVal > testerProducts[idx].unit) { this.value = testerProducts[idx].unitUse; return;}
+          testerProducts[idx].unitUse = newVal;
+          saveAndRenderTester();
+        };
+      });
+      document.querySelectorAll("#tester-productList img.product-image").forEach(img => {
+        img.onclick = function () { openLightbox(this.src);}
+      });
+    }
+    function deleteTesterProduct(index) {
+      if (confirm("Are you sure you want to delete this product?")) {
+        testerProducts.splice(index, 1);
+        saveAndRenderTester();
+      }
+    }
+
+    // JUNK
+    let junkProducts = JSON.parse(localStorage.getItem('junkProducts') || "[]");
+    function saveAndRenderJunk() {
+      localStorage.setItem('junkProducts', JSON.stringify(junkProducts));
+      renderJunkList();
+    }
+    function clearJunkInputs() {
+      document.getElementById('junk-model').selectedIndex = 0;
+      document.getElementById('junk-imgInput').value = '';
+      document.getElementById('junk-partItem').value = '';
+      document.getElementById('junk-productName').value = '';
+      document.getElementById('junk-unit').value = '';
+      document.getElementById('junk-unitUse').value = '';
+    }
+    function renderJunkList() {
+      const tbody = document.getElementById("junk-productList");
+      tbody.innerHTML = "";
+      junkProducts.forEach((product, index) => {
+        const balance = product.unit - product.unitUse;
+        const statusComplete = balance === 0;
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${product.model}</td>
+          <td>
+            ${product.imgURL
+              ? `<img class="product-image" src="${product.imgURL}" alt="${product.name}" data-index="${index}" />`
+              : `<span style="color:#666;">No image</span>`
+            }
+          </td>
+          <td>${product.partItem}</td>
+          <td>${product.name}</td>
+          <td>${product.unit}</td>
+          <td>
+            <input
+              class="edit-unitUse"
+              type="number"
+              min="0"
+              max="${product.unit}"
+              value="${product.unitUse}"
+              data-index="${index}"
+            />
+          </td>
+          <td class="${balance === 0 ? 'unit-use-green' : 'unit-use-red'}">${balance}</td>
+          <td class="${statusComplete ? 'status-complete' : 'status-notcomplete'}">
+            ${statusComplete ? "Complete" : "Not Complete"}
+          </td>
+          <td>
+            <button onclick="openPMAFromJunk(${index})" style="background:#00b894; padding:5px 10px; border:none; border-radius:5px; cursor:pointer;">PMA Report</button>
+          </td>
+          <td><button onclick="deleteJunkProduct(${index})" style="background:#ff6b6b; padding:5px 10px; border:none; border-radius:5px; cursor:pointer;">Delete</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+      document.querySelectorAll("#junk-productList .edit-unitUse").forEach(input => {
+        input.onchange = function () {
+          const idx = parseInt(this.getAttribute("data-index"));
+          let newVal = parseInt(this.value);
+          if (isNaN(newVal) || newVal < 0) { this.value = junkProducts[idx].unitUse; return;}
+          if (newVal > junkProducts[idx].unit) { this.value = junkProducts[idx].unitUse; return;}
+          junkProducts[idx].unitUse = newVal;
+          saveAndRenderJunk();
+        };
+      });
+      document.querySelectorAll("#junk-productList img.product-image").forEach(img => {
+        img.onclick = function () { openLightbox(this.src);}
+      });
+    }
+    function deleteJunkProduct(index) {
+      if (confirm("Are you sure you want to delete this product?")) {
+        junkProducts.splice(index, 1);
+        saveAndRenderJunk();
+      }
+    }
+    function openPMAFromJunk(idx) {
+      pmaPrefillData = junkProducts[idx];
+      setPage('pma');
+    }
+
+    // Download helpers for both sections
+    function downloadTxt(type) {
+      let arr = type === "tester" ? testerProducts : junkProducts;
+      if (arr.length === 0) { alert("No data to download!"); return;}
+      let text = "Model\tImageURL\tPartItem\tProductName\tUnit\tUnitUse\tBalance\tStatus\n";
+      arr.forEach(p => {
+        const balance = p.unit - p.unitUse;
+        const status = balance === 0 ? "Complete" : "Not Complete";
+        text += `${p.model}\t${p.imgURL ? "[Image]" : ""}\t${p.partItem}\t${p.name}\t${p.unit}\t${p.unitUse}\t${balance}\t${status}\n`;
+      });
+      const blob = new Blob([text], { type: "text/plain" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = (type === "tester" ? "tester_product_stock.txt" : "junk_product_stock.txt");
+      a.click(); URL.revokeObjectURL(a.href);
+    }
+    function downloadCSV(type) {
+      let arr = type === "tester" ? testerProducts : junkProducts;
+      if (arr.length === 0) { alert("No data to download!"); return;}
+      let csv = `"Model","ImageURL","PartItem","ProductName","Unit","UnitUse","Balance","Status"\n`;
+      arr.forEach(p => {
+        const balance = p.unit - p.unitUse;
+        const status = balance === 0 ? "Complete" : "Not Complete";
+        const row = [
+          p.model,
+          p.imgURL ? "[Image]" : "",
+          p.partItem,
+          p.name,
+          p.unit,
+          p.unitUse,
+          balance,
+          status,
+        ].map(v => `"${String(v).replace(/"/g, '""')}"`).join(",");
+        csv += row + "\n";
+      });
+      const blob = new Blob([csv], { type: "text/csv" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = (type === "tester" ? "tester_product_stock.csv" : "junk_product_stock.csv");
+      a.click(); URL.revokeObjectURL(a.href);
+    }
+
+    // Lightbox functions
+    const lightboxOverlay = document.getElementById("lightboxOverlay");
+    const lightboxImage = document.getElementById("lightboxImage");
+    const lightboxCloseBtn = document.getElementById("lightboxCloseBtn");
+    function openLightbox(src) {
+      lightboxImage.src = src;
+      lightboxOverlay.style.display = "flex";
+    }
+    lightboxCloseBtn.onclick = function () {
+      lightboxOverlay.style.display = "none";
+      lightboxImage.src = "";
+    };
+    lightboxOverlay.onclick = function (e) {
+      if (e.target === lightboxOverlay) {
+        lightboxOverlay.style.display = "none";
+        lightboxImage.src = "";
+      }
+    };
+
+    // --- PMA REPORT LOGIC ---
+    let pmaNgRows = [];
+    let pmaReports = JSON.parse(localStorage.getItem('pmaReports') || "[]");
+
+    function renderPmaNgList() {
+      const tbody = document.getElementById('pma-ng-list');
+      tbody.innerHTML = '';
+      pmaNgRows.forEach((ng, idx) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${idx + 1}</td>
+          <td><input type="text" value="${ng.desc || ""}" onchange="updatePmaNgRow(${idx}, 'desc', this.value)" required /></td>
+          <td><input type="text" value="${ng.action || ""}" onchange="updatePmaNgRow(${idx}, 'action', this.value)" required /></td>
+          <td>
+            ${ng.imgURL ? `<img class="pma-ng-img" src="${ng.imgURL}" alt="ngimg" onclick="openLightbox('${ng.imgURL}')" />` : ''}
+            <input type="file" accept="image/*" onchange="uploadPmaNgImg(event,${idx})" style="margin-top:5px;" />
+          </td>
+          <td><button type="button" class="pma-ng-action-btn" onclick="removePmaNgRow(${idx})">&times;</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+    function addPmaNgRow() { pmaNgRows.push({desc:"",action:"",imgURL:""}); renderPmaNgList();}
+    function removePmaNgRow(idx) { pmaNgRows.splice(idx,1); renderPmaNgList();}
+    function updatePmaNgRow(idx, key, value) { pmaNgRows[idx][key] = value;}
+    function uploadPmaNgImg(ev, idx) {
+      const file = ev.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        pmaNgRows[idx].imgURL = e.target.result; renderPmaNgList();
+      };
+      reader.readAsDataURL(file);
+    }
+    function clearPmaForm() {
+      document.getElementById('pma-product').value = '';
+      document.getElementById('pma-model').selectedIndex = 0;
+      document.getElementById('pma-partitem').value = '';
+      document.getElementById('pma-action').value = '';
+      document.getElementById('pma-conclusion').value = '';
+      document.getElementById('pma-sign-investigator').value = '';
+      document.getElementById('pma-sign-qa').value = '';
+      pmaNgRows = [];
+      renderPmaNgList();
+      pmaPrefillData = null;
+    }
+    function renderPmaReportsList() {
+      const div = document.getElementById('pma-reports-list');
+      if (!pmaReports.length) {
+        div.innerHTML = `<span style="color:#aaa;">No PMA reports saved.</span>`;
+        return;
+      }
+      div.innerHTML = "";
+      pmaReports.forEach((r,i) => {
+        const card = document.createElement('div');
+        card.className = 'pma-report-card';
+        card.innerHTML = `
+          <h3>PMA Report #${i+1}</h3>
+          <b>Product:</b> ${r.product} <b>Model:</b> ${r.model} <b>PartItem:</b> ${r.partitem}<br/>
+          <b>NG List:</b>
+          <ul>${r.nglist.map((ng,idx)=>
+            `<li><b>${idx+1}:</b> ${ng.desc} | Action: ${ng.action} ${ng.imgURL?`<img src="${ng.imgURL}" class="pma-ng-img" style="max-width:40px;vertical-align:middle;" onclick="openLightbox('${ng.imgURL}')"/>`:""}</li>`
+          ).join("")}</ul>
+          <b>Action:</b> ${r.action}<br/>
+          <b>Conclusion:</b> ${r.conclusion}<br/>
+          <b>Investigator:</b> ${r.signInvestigator} <b>QA:</b> ${r.signQA}<br/>
+          <button onclick="viewPmaReport(${i})" class="pma-ng-action-btn">View</button>
+          <button onclick="deletePmaReport(${i})" class="pma-ng-action-btn" style="background:#ff4757;">Delete</button>
+        `;
+        div.appendChild(card);
+      });
+    }
+    function savePmaReports() {
+      localStorage.setItem('pmaReports', JSON.stringify(pmaReports));
+      renderPmaReportsList();
+    }
+    function deletePmaReport(idx) {
+      if (confirm("Delete this PMA report?")) {
+        pmaReports.splice(idx, 1);
+        savePmaReports();
+      }
+    }
+    function viewPmaReport(idx) {
+      const r = pmaReports[idx];
+      document.getElementById('pma-product').value = r.product;
+      document.getElementById('pma-model').value = r.model;
+      document.getElementById('pma-partitem').value = r.partitem;
+      document.getElementById('pma-action').value = r.action;
+      document.getElementById('pma-conclusion').value = r.conclusion;
+      document.getElementById('pma-sign-investigator').value = r.signInvestigator;
+      document.getElementById('pma-sign-qa').value = r.signQA;
+      pmaNgRows = JSON.parse(JSON.stringify(r.nglist || []));
+      renderPmaNgList();
+      window.scrollTo({top:0,behavior:"smooth"});
+    }
+    function exportPmaPDF() { alert("PDF export will be available in a future update!"); }
+    document.getElementById('pma-form').onsubmit = function(e) {
+      e.preventDefault();
+      const product = document.getElementById('pma-product').value.trim();
+      const model = document.getElementById('pma-model').value;
+      const partitem = document.getElementById('pma-partitem').value.trim();
+      const action = document.getElementById('pma-action').value.trim();
+      const conclusion = document.getElementById('pma-conclusion').value.trim();
+      const signInvestigator = document.getElementById('pma-sign-investigator').value.trim();
+      const signQA = document.getElementById('pma-sign-qa').value.trim();
+      if (!product || !model || !partitem || !action || !conclusion || !signInvestigator || !signQA) {
+        alert("Please fill all fields."); return;
+      }
+      if (partitem.length !== 11) { alert("Part Item must be exactly 11 characters."); return;}
+      if (!pmaNgRows.length) { alert("Add at least one NG row."); return;}
+      for (let ng of pmaNgRows) { if (!ng.desc || !ng.action) { alert("All NG rows must have description and action."); return;}}
+      pmaReports.push({
+        product, model, partitem, nglist: JSON.parse(JSON.stringify(pmaNgRows)),
+        action, conclusion, signInvestigator, signQA,
+        date: new Date().toISOString()
+      });
+      savePmaReports();
+      alert("PMA Report saved!");
+      clearPmaForm();
+    };
+    function prefillPmaFromJunk() {
+      if (!pmaPrefillData) return;
+      document.getElementById('pma-product').value = pmaPrefillData.name || '';
+      document.getElementById('pma-model').value = pmaPrefillData.model || '';
+      document.getElementById('pma-partitem').value = pmaPrefillData.partItem || '';
+      pmaNgRows = [];
+      renderPmaNgList();
+      pmaPrefillData = null;
+      window.scrollTo({top:0,behavior:"smooth"});
+    }
+
+    // SPA NAV
+    function setPage(p) {
+      currentPage = p;
+      render();
+      if (p === 'tester') renderTesterList();
+      if (p === 'junk') renderJunkList();
+      if (p === 'pma') {
+        renderPmaReportsList();
+        clearPmaForm();
+        setTimeout(prefillPmaFromJunk, 100);
+      }
+    }
+    function render() {
+      document.getElementById('login-section').classList.add('hidden');
+      document.getElementById('select-section').classList.add('hidden');
+      document.getElementById('tester-section').classList.add('hidden');
+      document.getElementById('junk-section').classList.add('hidden');
+      document.getElementById('pma-section').classList.add('hidden');
+      if(currentPage === 'login') { document.getElementById('login-section').classList.remove('hidden'); }
+      else if(currentPage === 'select') { document.getElementById('select-section').classList.remove('hidden'); }
+      else if(currentPage === 'tester') { document.getElementById('tester-section').classList.remove('hidden'); }
+      else if(currentPage === 'junk') { document.getElementById('junk-section').classList.remove('hidden'); }
+      else if(currentPage === 'pma') { document.getElementById('pma-section').classList.remove('hidden'); }
+    }
+    function checkAuth() {
+      const loggedIn = localStorage.getItem('authToken') === 'loggedIn';
+      currentPage = loggedIn ? 'select' : 'login'; render();
+    }
+    function login() {
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value.trim();
+      if(username === VALID_USERNAME && password === VALID_PASSWORD) {
+        localStorage.setItem('authToken', 'loggedIn');
+        document.getElementById('username').value = '';
+        document.getElementById('password').value = '';
+        setPage('select');
+      } else { alert("Incorrect username or password"); }
+    }
+    function logout() {
+      localStorage.removeItem('authToken');
+      setPage('login');
+    }
+
+    document.getElementById('tester-form').onsubmit = function(e) {
+      e.preventDefault();
+      const model = document.getElementById("tester-model").value;
+      const partItem = document.getElementById("tester-partItem").value.trim();
+      const name = document.getElementById("tester-productName").value.trim();
+      const unit = parseInt(document.getElementById("tester-unit").value);
+      const unitUse = parseInt(document.getElementById("tester-unitUse").value);
+      const imgFile = document.getElementById("tester-imgInput").files[0];
+      if (!model) { alert("Please select a model."); return;}
+      if (partItem.length !== 11) { alert("Part Item must be exactly 11 characters long."); return;}
+      if (!name) { alert("Please enter product name."); return;}
+      if (isNaN(unit) || unit < 0) { alert("Unit must be a non-negative number."); return;}
+      if (isNaN(unitUse) || unitUse < 0) { alert("Unit Use must be a non-negative number."); return;}
+      if (unitUse > unit) { alert("Unit Use cannot be greater than Unit."); return;}
+      if (imgFile) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const imgURL = e.target.result;
+          testerProducts.push({ model, imgURL, partItem, name, unit, unitUse,});
+          saveAndRenderTester(); clearTesterInputs();
+        }; reader.readAsDataURL(imgFile);
+      } else {
+        testerProducts.push({ model, imgURL: "", partItem, name, unit, unitUse,});
+        saveAndRenderTester(); clearTesterInputs();
+      }
+    };
+
+    document.getElementById('junk-form').onsubmit = function(e) {
+      e.preventDefault();
+      const model = document.getElementById("junk-model").value;
+      const partItem = document.getElementById("junk-partItem").value.trim();
+      const name = document.getElementById("junk-productName").value.trim();
+      const unit = parseInt(document.getElementById("junk-unit").value);
+      const unitUse = parseInt(document.getElementById("junk-unitUse").value);
+      const imgFile = document.getElementById("junk-imgInput").files[0];
+      if (!model) { alert("Please select a model."); return;}
+      if (partItem.length !== 11) { alert("Part Item must be exactly 11 characters long."); return;}
+      if (!name) { alert("Please enter product name."); return;}
+      if (isNaN(unit) || unit < 0) { alert("Unit must be a non-negative number."); return;}
+      if (isNaN(unitUse) || unitUse < 0) { alert("Unit Use must be a non-negative number."); return;}
+      if (unitUse > unit) { alert("Unit Use cannot be greater than Unit."); return;}
+      if (imgFile) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const imgURL = e.target.result;
+          junkProducts.push({ model, imgURL, partItem, name, unit, unitUse,});
+          saveAndRenderJunk(); clearJunkInputs();
+        }; reader.readAsDataURL(imgFile);
+      } else {
+        junkProducts.push({ model, imgURL: "", partItem, name, unit, unitUse,});
+        saveAndRenderJunk(); clearJunkInputs();
+      }
+    };
+
+    checkAuth();
+    if (currentPage === 'tester') renderTesterList();
+    if (currentPage === 'junk') renderJunkList();
+    if (currentPage === 'pma') { renderPmaReportsList(); clearPmaForm();}
+  </script>
+</body>
+</html>

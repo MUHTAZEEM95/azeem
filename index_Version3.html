@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>PRODUCT KIC-TESTER & KIC-JUNK STOCK (SPA + PMA REPORT)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { font-family: Tahoma, Arial, sans-serif; background-color: #121212; color: #eee; margin: 0; padding: 30px;}
+    .container { max-width: 1000px; margin: auto; background: #1f1f1f; padding: 30px; border-radius: 15px; box-shadow: 0 4px 20px rgba(255,255,255,0.1);}
+    .centered { text-align: center; }
+    h1, h2 { color: #ff4757; margin-bottom: 20px; text-align: center; }
+    label { display: block; margin-top: 15px; font-weight: 600; }
+    select, input, textarea { width: 100%; max-width: 400px; padding: 10px; border-radius: 8px; border: 1px solid #444; background: #222; color: #eee; font-size: 1rem; box-sizing: border-box; margin-top: 5px;}
+    input[type="file"] { background-color: #222; color: #eee;}
+    button { margin-top: 20px; padding: 10px 20px; background-color: #ff4757; border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; transition: background-color 0.3s ease;}
+    button:hover { background-color: #d63031;}
+    table { width: 100%; margin-top: 30px; border-collapse: collapse; font-size: 0.9rem; background: #1f1f1f; color: #eee;}
+    th, td { border: 1px solid #444; padding: 12px 10px; text-align: center;}
+    th { background-color: #ff4757; text-transform: uppercase;}
+    tbody tr:nth-child(even) { background-color: #2c2c2c;}
+    img.product-image { max-width: 100px; max-height: 70px; border-radius: 6px; cursor: pointer; transition: transform 0.3s;}
+    img.product-image:hover { transform: scale(1.1);}
+    .unit-use-red, .ng-red { color: #ff6b6b; font-weight: bold;}
+    .unit-use-green { color: #2ed573; font-weight: bold;}
+    .status-complete { color: #2ed573; font-weight: 700;}
+    .status-notcomplete { color: #ff6b6b; font-weight: 700;}
+    input.edit-unitUse, input.edit-ng { width: 60px; background: #222; border: 1px solid #444; border-radius: 6px; color: #eee; text-align: center; font-size: 0.9rem;}
+    #lightboxOverlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 1000;}
+    #lightboxOverlay img { max-width: 90vw; max-height: 90vh; border-radius: 12px; box-shadow: 0 0 30px rgba(255,255,255,0.3);}
+    #lightboxCloseBtn { position: fixed; top: 20px; right: 20px; background: #ff4757; color: white; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 1.5rem; cursor: pointer; z-index: 1001; line-height: 0; padding: 0;}
+    .hidden { display: none !important;}
+    .logout-btn { float: right; max-width: 100px; margin-top: -15px; margin-bottom: 5px;}
+    .nav-btns { margin-top: 10px; margin-bottom: 10px; text-align: left;}
+    .nav-btns button { margin-right: 10px; margin-top: 0; margin-bottom: 0; padding: 7px 14px; border-radius: 6px; font-size: 0.95rem;}
+    #login-section { max-width: 400px; background: #1f1f1f; margin: 100px auto 0 auto; padding: 30px 40px; border-radius: 15px; box-sizing: border-box; box-shadow: 0 4px 20px rgba(255,255,255,0.08);}
+    #login-section h2 { color: #ff4757;}
+    .stock-select-btn { width: 90%; max-width: 400px; margin: 25px auto; font-size: 1.1rem; display: block; box-shadow: 0 2px 8px #0003;}
+    /* PMA Modal */
+    .modal-bg { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); z-index: 2000; display: flex; align-items: center; justify-content: center;}
+    .modal { background: #262626; color: #eee; border-radius: 10px; padding: 25px 18px 18px 18px; min-width: 340px; max-width: 98vw; max-height: 96vh; overflow-y: auto; box-shadow: 0 8px 30px #000b;}
+    .modal h2 { color: #ffb300; margin-top: 0;}
+    .modal .close { position: absolute; top: 12px; right: 20px; background: #ff4757; border: none; color: #fff; border-radius: 50%; width: 33px; height: 33px; font-size: 1.2em; cursor: pointer;}
+    .modal label { margin-top: 9px; }
+    .pma-part-row { display: flex; gap: 10px; margin-bottom: 8px;}
+    .pma-part-row input, .pma-part-row textarea { margin-top: 0; }
+    .pma-part-row img { max-width: 55px; max-height: 45px; border-radius: 4px; margin-left: 5px;}
+    .pma-checkboxes { margin-top: 8px;}
+    .pma-checkboxes label { display: inline; font-weight: normal;}
+    .pma-parts-header { display: flex; gap: 10px; font-weight: bold; margin-bottom: 3px;}
+    .modal-footer { margin-top: 23px; display: flex; gap: 10px; }
+    .pma-list-table { width: 100%; margin-top: 15px; border-collapse: collapse;}
+    .pma-list-table th, .pma-list-table td { border: 1px solid #333; padding: 8px 5px; font-size: 0.95em;}
+    .pma-list-table th { background: #ffb300; color: #222;}
+    .pma-action-btn { margin: 0 3px; padding: 4px 8px; font-size: 0.9em;}
+    @media (max-width:700px) { .container { padding: 8px; } .modal { padding: 7px; }}
+  </style>
+</head>
+<body>
+  <!-- Login Section -->
+  <div class="container" id="login-section">
+    <h2>Login</h2>
+    <input id="username" type="text" placeholder="Username" autocomplete="off" />
+    <input id="password" type="password" placeholder="Password" autocomplete="off" />
+    <button onclick="login()">Log In</button>
+  </div>
+
+  <!-- Stock Selection Section -->
+  <div class="container hidden" id="stock-select-section">
+    <button class="logout-btn" onclick="logout()">Log Out</button>
+    <h1>Tester Product Stock</h1>
+    <button class="stock-select-btn" onclick="showStock('tester')">Product KIC Tester Stock</button>
+    <button class="stock-select-btn" onclick="showStock('junk')">Product KIC JUNK Stock</button>
+  </div>
+
+  <!-- Tester Stock Section -->
+  <div class="container hidden" id="tester-stock-section">
+    <div class="nav-btns">
+      <button onclick="backToSelection()">Back to Stock Selection</button>
+      <button onclick="showStock('junk')">Switch to KIC JUNK Stock</button>
+      <button class="logout-btn" onclick="logout()">Log Out</button>
+    </div>
+    <h1>PRODUCT KIC-TESTER STOCK</h1>
+    <form id="tester-form" onsubmit="event.preventDefault();addProduct('tester');">
+      <label for="tester-model">Select Model:</label>
+      <select id="tester-model" required>
+        <option value="" disabled selected>Select a model</option>
+        <option value="TCT-SUZAKU">TCT-SUZAKU</option>
+        <option value="SUZAKU RACK">SUZAKU RACK</option>
+        <option value="FT SUZAKU">FT SUZAKU</option>
+      </select>
+      <label for="tester-imgInput">Upload Image:</label>
+      <input type="file" id="tester-imgInput" accept="image/*" />
+      <label for="tester-partItem">Part Item (exactly 11 characters):</label>
+      <input type="text" id="tester-partItem" maxlength="11" placeholder="Enter part item (11 characters)" />
+      <label for="tester-productName">Product Name:</label>
+      <input type="text" id="tester-productName" placeholder="Enter product name" />
+      <label for="tester-unit">Unit:</label>
+      <input type="number" id="tester-unit" min="0" placeholder="Enter unit quantity" />
+      <label for="tester-unitUse">Unit Use:</label>
+      <input type="number" id="tester-unitUse" min="0" placeholder="Enter unit used quantity" />
+      <button type="submit">Add Product</button>
+      <button type="button" onclick="downloadTxt('tester')">Download TXT</button>
+      <button type="button" onclick="downloadCSV('tester')">Download CSV</button>
+    </form>
+    <table>
+      <thead>
+        <tr>
+          <th>Model</th>
+          <th>Image</th>
+          <th>Part Item</th>
+          <th>Product Name</th>
+          <th>Unit</th>
+          <th>Unit Use (Editable)</th>
+          <th>Stock Balance</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="tester-productList"></tbody>
+    </table>
+  </div>
+
+  <!-- Junk Stock Section -->
+  <div class="container hidden" id="junk-stock-section">
+    <div class="nav-btns">
+      <button onclick="backToSelection()">Back to Stock Selection</button>
+      <button onclick="showStock('tester')">Switch to KIC TESTER Stock</button>
+      <button class="logout-btn" onclick="logout()">Log Out</button>
+    </div>
+    <h1>PRODUCT KIC-JUNK STOCK</h1>
+    <button style="margin-bottom:15px;background:#ffb300;color:#222;" onclick="openPmaModal()">PMA Report</button>
+    <form id="junk-form" onsubmit="event.preventDefault();addProduct('junk');">
+      <label for="junk-model">Select Model:</label>
+      <select id="junk-model" required>
+        <option value="" disabled selected>Select a model</option>
+        <option value="TCT-SUZAKU">TCT-SUZAKU</option>
+        <option value="SUZAKU RACK">SUZAKU RACK</option>
+        <option value="FT SUZAKU">FT SUZAKU</option>
+      </select>
+      <label for="junk-imgInput">Upload Image:</label>
+      <input type="file" id="junk-imgInput" accept="image/*" />
+      <label for="junk-partItem">Part Item (exactly 11 characters):</label>
+      <input type="text" id="junk-partItem" maxlength="11" placeholder="Enter part item (11 characters)" />
+      <label for="junk-productName">Product Name:</label>
+      <input type="text" id="junk-productName" placeholder="Enter product name" />
+      <label for="junk-unit">Unit (Total Quantity):</label>
+      <input type="number" id="junk-unit" min="0" placeholder="Enter total quantity" />
+      <label for="junk-unitUse">Unit Use:</label>
+      <input type="number" id="junk-unitUse" min="0" placeholder="Enter unit used quantity" />
+      <label for="junk-ng">Defect Quantity (NG):</label>
+      <input type="number" id="junk-ng" min="0" placeholder="Enter defect quantity (NG)" />
+      <button type="submit">Add Product</button>
+      <button type="button" onclick="downloadTxt('junk')">Download TXT</button>
+      <button type="button" onclick="downloadCSV('junk')">Download CSV</button>
+    </form>
+    <table>
+      <thead>
+        <tr>
+          <th>Model</th>
+          <th>Image</th>
+          <th>Part Item</th>
+          <th>Product Name</th>
+          <th>Unit</th>
+          <th>Unit Use (Editable)</th>
+          <th>Defect Qty (NG, Editable)</th>
+          <th>% Defect</th>
+          <th>Stock Balance</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="junk-productList"></tbody>
+    </table>
+    <!-- PMA Report List -->
+    <h2 style="margin-top:40px;font-size:1.2em;color:#ffb300;">PMA Reports</h2>
+    <table class="pma-list-table" id="pma-list-table" style="margin-bottom:30px;">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Date</th>
+          <th>Model</th>
+          <th>Part No.</th>
+          <th>Description</th>
+          <th>Prepared By</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="pma-list-body"></tbody>
+    </table>
+  </div>
+
+  <!-- Lightbox (shared) -->
+  <div id="lightboxOverlay">
+    <button id="lightboxCloseBtn" aria-label="Close Image">&times;</button>
+    <img id="lightboxImage" src="" alt="Expanded product image" />
+  </div>
+  <!-- PMA Modal -->
+  <div id="pma-modal-bg" class="modal-bg hidden">
+    <div class="modal" style="position:relative;">
+      <button class="close" onclick="closePmaModal()">&times;</button>
+      <h2>PMA Report</h2>
+      <form id="pma-form" autocomplete="off">
+        <!-- Top Row: Urgent/Normal, Date, Doc No -->
+        <div style="display:flex;gap:12px;align-items:center;">
+          <label style="display:flex;align-items:center;gap:5px;">
+            <input type="checkbox" id="pma-urgent" /> URGENT
+          </label>
+          <label style="display:flex;align-items:center;gap:5px;">
+            <input type="checkbox" id="pma-normal" /> NORMAL
+          </label>
+          <label for="pma-date" style="margin-right:0;">DATE:</label>
+          <input type="date" id="pma-date" style="max-width:150px;" required/>
+          <label for="pma-docno" style="margin-right:0;">Doc.No.:</label>
+          <input type="text" id="pma-docno" style="max-width:160px;" required/>
+        </div>
+        <label for="pma-model">MODEL:</label>
+        <input type="text" id="pma-model" required/>
+        <label for="pma-partno">PART NO.:</label>
+        <input type="text" id="pma-partno" required/>
+        <label for="pma-descrip">DESCRIP:</label>
+        <input type="text" id="pma-descrip" required/>
+        <label for="pma-defqty">DEFECT QTY (e.g. 1/1328pcs):</label>
+        <input type="text" id="pma-defqty" required/>
+        <label for="pma-invno">Invoice No.:</label>
+        <input type="text" id="pma-invno" required/>
+        <label for="pma-returnjs">Return JS:</label>
+        <input type="text" id="pma-returnjs" required/>
+        <label for="pma-defrate">Defect Rate (%):</label>
+        <input type="text" id="pma-defrate" required/>
+        <label for="pma-abdetail">Abnormal Detail / Define Issue:</label>
+        <textarea id="pma-abdetail" required></textarea>
+        <label for="pma-detail">Detail:</label>
+        <textarea id="pma-detail" required></textarea>
+        <!-- Part rows -->
+        <div class="pma-parts-header" style="margin-top:10px;">
+          <span style="width:40px;">NO.</span>
+          <span style="width:160px;">Part Number</span>
+          <span style="flex:1;">Remark</span>
+          <span style="width:100px;">Image</span>
+        </div>
+        <div id="pma-parts">
+          <!-- 4 part rows -->
+          <div class="pma-part-row">
+            <span style="width:40px;">1</span>
+            <input type="text" class="pma-partno" maxlength="20" style="width:160px;" />
+            <input type="text" class="pma-remark" maxlength="85" style="flex:1;" />
+            <input type="file" class="pma-img" accept="image/*" style="width:100px;" />
+          </div>
+          <div class="pma-part-row">
+            <span style="width:40px;">2</span>
+            <input type="text" class="pma-partno" maxlength="20" style="width:160px;" />
+            <input type="text" class="pma-remark" maxlength="85" style="flex:1;" />
+            <input type="file" class="pma-img" accept="image/*" style="width:100px;" />
+          </div>
+          <div class="pma-part-row">
+            <span style="width:40px;">3</span>
+            <input type="text" class="pma-partno" maxlength="20" style="width:160px;" />
+            <input type="text" class="pma-remark" maxlength="85" style="flex:1;" />
+            <input type="file" class="pma-img" accept="image/*" style="width:100px;" />
+          </div>
+          <div class="pma-part-row">
+            <span style="width:40px;">4</span>
+            <input type="text" class="pma-partno" maxlength="20" style="width:160px;" />
+            <input type="text" class="pma-remark" maxlength="85" style="flex:1;" />
+            <input type="file" class="pma-img" accept="image/*" style="width:100px;" />
+          </div>
+        </div>
+        <div class="pma-checkboxes">
+          <label><input type="checkbox" id="pma-vqa" /> PLEASE VQA/SCQA RESPONSE</label>
+          <label style="margin-left:23px;"><input type="checkbox" id="pma-accidental" /> ACCIDENTAL INFORM VQA/SCQA</label>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:12px;">
+          <label for="pma-preparedby" style="flex:1;">PREPARED BY:</label>
+          <input type="text" id="pma-preparedby" style="flex:2;" required/>
+          <label for="pma-checkedby" style="flex:1;">CHECKED BY:</label>
+          <input type="text" id="pma-checkedby" style="flex:2;" required/>
+          <label for="pma-approvedby" style="flex:1;">APPROVED BY:</label>
+          <input type="text" id="pma-approvedby" style="flex:2;" required/>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" style="background:#ffb300;color:#222;">Submit PMA Report</button>
+          <button type="button" onclick="closePmaModal()">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <!-- PMA View Modal -->
+  <div id="pma-view-modal-bg" class="modal-bg hidden">
+    <div class="modal" style="position:relative;max-width:700px;">
+      <button class="close" onclick="closePmaViewModal()">&times;</button>
+      <div id="pma-view-content"></div>
+      <div class="modal-footer">
+        <button id="pma-pdf-btn" style="background:#ffb300;color:#222;">Download PDF</button>
+        <button id="pma-csv-btn" style="background:#ffb300;color:#222;">Download CSV</button>
+        <button onclick="closePmaViewModal()">Close</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    // --- Login System ---
+    const VALID_USERNAME = "admin";
+    const VALID_PASSWORD = "1234";
+    function checkAuth() {
+      const loggedIn = localStorage.getItem('authToken') === 'loggedIn';
+      document.getElementById('login-section').classList.toggle('hidden', loggedIn);
+      document.getElementById('stock-select-section').classList.toggle('hidden', !loggedIn);
+      document.getElementById('tester-stock-section').classList.add('hidden');
+      document.getElementById('junk-stock-section').classList.add('hidden');
+      if(loggedIn) showStockSelection();
+    }
+    function login() {
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value.trim();
+      if(username === VALID_USERNAME && password === VALID_PASSWORD) {
+        localStorage.setItem('authToken', 'loggedIn');
+        document.getElementById('username').value = '';
+        document.getElementById('password').value = '';
+        checkAuth();
+      } else {
+        alert("Incorrect username or password");
+      }
+    }
+    function logout() {
+      localStorage.removeItem('authToken');
+      checkAuth();
+    }
+    // --- Navigation ---
+    function showStockSelection() {
+      document.getElementById('stock-select-section').classList.remove('hidden');
+      document.getElementById('tester-stock-section').classList.add('hidden');
+      document.getElementById('junk-stock-section').classList.add('hidden');
+    }
+    function backToSelection() { showStockSelection(); }
+    function showStock(type) {
+      document.getElementById('stock-select-section').classList.add('hidden');
+      if(type === 'tester') {
+        document.getElementById('tester-stock-section').classList.remove('hidden');
+        document.getElementById('junk-stock-section').classList.add('hidden');
+        renderList('tester');
+      } else {
+        document.getElementById('tester-stock-section').classList.add('hidden');
+        document.getElementById('junk-stock-section').classList.remove('hidden');
+        renderList('junk');
+        renderPmaList();
+      }
+    }
+    // --- Storage Keys ---
+    const STORAGE_KEYS = { tester: 'products_tester', junk: 'products_junk', pma: 'pma_reports' };
+    // --- Product Management ---
+    function getProducts(type) {
+      return JSON.parse(localStorage.getItem(STORAGE_KEYS[type])) || [];
+    }
+    function setProducts(type, products) {
+      localStorage.setItem(STORAGE_KEYS[type], JSON.stringify(products));
+    }
+    function clearInputs(type) {
+      document.getElementById(type+'-model').selectedIndex = 0;
+      document.getElementById(type+'-imgInput').value = '';
+      document.getElementById(type+'-partItem').value = '';
+      document.getElementById(type+'-productName').value = '';
+      document.getElementById(type+'-unit').value = '';
+      document.getElementById(type+'-unitUse').value = '';
+      if(type === "junk") { document.getElementById('junk-ng').value = ''; }
+    }
+    function addProduct(type) {
+      const model = document.getElementById(type+"-model").value;
+      const partItem = document.getElementById(type+"-partItem").value.trim();
+      const name = document.getElementById(type+"-productName").value.trim();
+      const unit = parseInt(document.getElementById(type+"-unit").value);
+      const unitUse = parseInt(document.getElementById(type+"-unitUse").value);
+      const imgFile = document.getElementById(type+"-imgInput").files[0];
+      let ng = 0; if(type === "junk") { ng = parseInt(document.getElementById("junk-ng").value);}
+      if (!model) { alert("Please select a model."); return; }
+      if (partItem.length !== 11) { alert("Part Item must be exactly 11 characters long."); return; }
+      if (!name) { alert("Please enter product name."); return; }
+      if (isNaN(unit) || unit < 0) { alert("Unit must be a non-negative number."); return; }
+      if (isNaN(unitUse) || unitUse < 0) { alert("Unit Use must be a non-negative number."); return; }
+      if (unitUse > unit) { alert("Unit Use cannot be greater than Unit."); return; }
+      if(type === "junk" && (isNaN(ng) || ng < 0)) { alert("Defect Quantity (NG) must be a non-negative number."); return; }
+      if(type === "junk" && ng > unit) { alert("NG cannot be greater than Unit."); return; }
+      const products = getProducts(type);
+      function saveAndFinish(imgURL) {
+        let productObj = { model, imgURL, partItem, name, unit, unitUse };
+        if(type === "junk") { productObj.ng = ng; }
+        products.push(productObj);
+        setProducts(type, products);
+        renderList(type);
+        clearInputs(type);
+      }
+      if (imgFile) {
+        const reader = new FileReader();
+        reader.onload = function (e) { saveAndFinish(e.target.result); };
+        reader.readAsDataURL(imgFile);
+      } else { saveAndFinish(""); }
+    }
+    function renderList(type) {
+      const products = getProducts(type);
+      const tbody = document.getElementById(type+"-productList");
+      tbody.innerHTML = "";
+      products.forEach((product, index) => {
+        const balance = product.unit - product.unitUse;
+        const statusComplete = balance === 0;
+        let tr = document.createElement("tr");
+        let ngCell = "", percentCell = "";
+        if(type === "tester") {
+          tr.innerHTML = `
+            <td>${product.model}</td>
+            <td>${product.imgURL ? `<img class="product-image" src="${product.imgURL}" alt="${product.name}" data-index="${index}" data-stock="${type}" />` : `<span style="color:#666;">No image</span>`}</td>
+            <td>${product.partItem}</td>
+            <td>${product.name}</td>
+            <td>${product.unit}</td>
+            <td><input class="edit-unitUse" type="number" min="0" max="${product.unit}" value="${product.unitUse}" data-index="${index}" data-stock="${type}" /></td>
+            <td class="${balance === 0 ? 'unit-use-green' : 'unit-use-red'}">${balance}</td>
+            <td class="${statusComplete ? 'status-complete' : 'status-notcomplete'}">${statusComplete ? "Complete" : "Not Complete"}</td>
+            <td><button onclick="deleteProduct('${type}',${index})" style="background:#ff6b6b; padding:5px 10px; border:none; border-radius:5px; cursor:pointer;">Delete</button></td>
+          `;
+        } else {
+          let ng = (typeof product.ng === "number" && !isNaN(product.ng)) ? product.ng : 0;
+          let percent = (product.unit > 0) ? ((ng / product.unit) * 100).toFixed(2) : "0.00";
+          ngCell = `<input class="edit-ng" type="number" min="0" max="${product.unit}" value="${ng}" data-index="${index}" data-stock="${type}" />`;
+          percentCell = `<span>${percent}%</span>`;
+          tr.innerHTML = `
+            <td>${product.model}</td>
+            <td>${product.imgURL ? `<img class="product-image" src="${product.imgURL}" alt="${product.name}" data-index="${index}" data-stock="${type}" />` : `<span style="color:#666;">No image</span>`}</td>
+            <td>${product.partItem}</td>
+            <td>${product.name}</td>
+            <td>${product.unit}</td>
+            <td><input class="edit-unitUse" type="number" min="0" max="${product.unit}" value="${product.unitUse}" data-index="${index}" data-stock="${type}" /></td>
+            <td>${ngCell}</td>
+            <td>${percentCell}</td>
+            <td class="${balance === 0 ? 'unit-use-green' : 'unit-use-red'}">${balance}</td>
+            <td class="${statusComplete ? 'status-complete' : 'status-notcomplete'}">${statusComplete ? "Complete" : "Not Complete"}</td>
+            <td><button onclick="deleteProduct('${type}',${index})" style="background:#ff6b6b; padding:5px 10px; border:none; border-radius:5px; cursor:pointer;">Delete</button></td>
+          `;
+        }
+        tbody.appendChild(tr);
+      });
+      document.querySelectorAll("#"+type+"-productList .edit-unitUse").forEach(input => {
+        input.onchange = function () {
+          const idx = parseInt(this.getAttribute("data-index"));
+          const stockType = this.getAttribute("data-stock");
+          let newVal = parseInt(this.value);
+          if (isNaN(newVal) || newVal < 0) { alert("Unit Use must be a non-negative number."); this.value = getProducts(stockType)[idx].unitUse; return;}
+          let prods = getProducts(stockType);
+          if (newVal > prods[idx].unit) { alert("Unit Use cannot be greater than Unit."); this.value = prods[idx].unitUse; return;}
+          prods[idx].unitUse = newVal;
+          setProducts(stockType, prods); renderList(stockType);
+        };
+      });
+      if(type === "junk") {
+        document.querySelectorAll("#junk-productList .edit-ng").forEach(input => {
+          input.onchange = function () {
+            const idx = parseInt(this.getAttribute("data-index"));
+            let newVal = parseInt(this.value);
+            let prods = getProducts("junk");
+            if (isNaN(newVal) || newVal < 0) { alert("NG must be a non-negative number."); this.value = prods[idx].ng || 0; return;}
+            if (newVal > prods[idx].unit) { alert("NG cannot be greater than Unit."); this.value = prods[idx].ng || 0; return;}
+            prods[idx].ng = newVal;
+            setProducts("junk", prods); renderList("junk");
+          };
+        });
+      }
+      document.querySelectorAll("#"+type+"-productList img.product-image").forEach(img => {
+        img.onclick = function () { openLightbox(this.src); };
+      });
+    }
+    function deleteProduct(type, index) {
+      if (confirm("Are you sure you want to delete this product?")) {
+        let prods = getProducts(type); prods.splice(index, 1); setProducts(type, prods); renderList(type);
+      }
+    }
+    // --- Lightbox ---
+    const lightboxOverlay = document.getElementById("lightboxOverlay");
+    const lightboxImage = document.getElementById("lightboxImage");
+    const lightboxCloseBtn = document.getElementById("lightboxCloseBtn");
+    function openLightbox(src) {
+      lightboxImage.src = src; lightboxOverlay.style.display = "flex";
+    }
+    lightboxCloseBtn.onclick = function () { lightboxOverlay.style.display = "none"; lightboxImage.src = ""; };
+    lightboxOverlay.onclick = function (e) { if (e.target === lightboxOverlay) { lightboxOverlay.style.display = "none"; lightboxImage.src = ""; } };
+    // --- Download TXT ---
+    function downloadTxt(type) {
+      const products = getProducts(type);
+      if (products.length === 0) { alert("No data to download!"); return; }
+      let text = "";
+      if(type === "tester") {
+        text = "Model\tImageURL\tPartItem\tProductName\tUnit\tUnitUse\tBalance\tStatus\n";
+        products.forEach(p => {
+          const balance = p.unit - p.unitUse;
+          const status = balance === 0 ? "Complete" : "Not Complete";
+          text += `${p.model}\t${p.imgURL ? "[Image]" : ""}\t${p.partItem}\t${p.name}\t${p.unit}\t${p.unitUse}\t${balance}\t${status}\n`;
+        });
+      } else {
+        text = "Model\tImageURL\tPartItem\tProductName\tUnit\tUnitUse\tNG\t%Defect\tBalance\tStatus\n";
+        products.forEach(p => {
+          const balance = p.unit - p.unitUse;
+          const status = balance === 0 ? "Complete" : "Not Complete";
+          let ng = (typeof p.ng === "number" && !isNaN(p.ng)) ? p.ng : 0;
+          let percent = (p.unit > 0) ? ((ng / p.unit) * 100).toFixed(2) : "0.00";
+          text += `${p.model}\t${p.imgURL ? "[Image]" : ""}\t${p.partItem}\t${p.name}\t${p.unit}\t${p.unitUse}\t${ng}\t${percent}%\t${balance}\t${status}\n`;
+        });
+      }
+      const blob = new Blob([text], { type: "text/plain" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = type === "tester" ? "product_tester_stock.txt" : "product_junk_stock.txt";
+      a.click(); URL.revokeObjectURL(a.href);
+    }
+    // --- Download CSV ---
+    function downloadCSV(type) {
+      const products = getProducts(type);
+      if (products.length === 0) { alert("No data to download!"); return; }
+      let csv = "";
+      if(type === "tester") {
+        csv = `"Model","ImageURL","PartItem","ProductName","Unit","UnitUse","Balance","Status"\n`;
+        products.forEach(p => {
+          const balance = p.unit - p.unitUse;
+          const status = balance === 0 ? "Complete" : "Not Complete";
+          const row = [ p.model, p.imgURL ? "[Image]" : "", p.partItem, p.name, p.unit, p.unitUse, balance, status ].map(v => `"${String(v).replace(/"/g, '""')}"`).join(",");
+          csv += row + "\n";
+        });
+      } else {
+        csv = `"Model","ImageURL","PartItem","ProductName","Unit","UnitUse","NG","%Defect","Balance","Status"\n`;
+        products.forEach(p => {
+          const balance = p.unit - p.unitUse;
+          const status = balance === 0 ? "Complete" : "Not Complete";
+          let ng = (typeof p.ng === "number" && !isNaN(p.ng)) ? p.ng : 0;
+          let percent = (p.unit > 0) ? ((ng / p.unit) * 100).toFixed(2) : "0.00";
+          const row = [ p.model, p.imgURL ? "[Image]" : "", p.partItem, p.name, p.unit, p.unitUse, ng, percent+"%", balance, status ].map(v => `"${String(v).replace(/"/g, '""')}"`).join(",");
+          csv += row + "\n";
+        });
+      }
+      const blob = new Blob([csv], { type: "text/csv" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = type === "tester" ? "product_tester_stock.csv" : "product_junk_stock.csv";
+      a.click(); URL.revokeObjectURL(a.href);
+    }
+    // --- PMA REPORT ---
+    function getPmaReports() {
+      return JSON.parse(localStorage.getItem(STORAGE_KEYS.pma)) || [];
+    }
+    function setPmaReports(list) {
+      localStorage.setItem(STORAGE_KEYS.pma, JSON.stringify(list));
+    }
+    function openPmaModal() {
+      document.getElementById('pma-modal-bg').classList.remove('hidden');
+      document.getElementById('pma-form').reset();
+      document.getElementById('pma-date').value = new Date().toISOString().slice(0,10);
+    }
+    function closePmaModal() { document.getElementById('pma-modal-bg').classList.add('hidden'); }
+    function renderPmaList() {
+      const list = getPmaReports();
+      const tbody = document.getElementById('pma-list-body');
+      tbody.innerHTML = '';
+      if (list.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="color:#aaa;">No reports yet</td></tr>`;
+        return;
+      }
+      list.forEach((rep, idx) => {
+        let tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${idx+1}</td>
+          <td>${rep.date}</td>
+          <td>${rep.model}</td>
+          <td>${rep.partno}</td>
+          <td>${rep.descrip}</td>
+          <td>${rep.preparedby}</td>
+          <td>
+            <button class="pma-action-btn" onclick="viewPmaReport(${idx})">View</button>
+            <button class="pma-action-btn" onclick="deletePmaReport(${idx})" style="background:#ff6b6b;">Delete</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+    function deletePmaReport(idx) {
+      if (confirm("Delete this PMA report?")) {
+        let list = getPmaReports();
+        list.splice(idx, 1);
+        setPmaReports(list);
+        renderPmaList();
+      }
+    }
+    // --- PMA FORM SUBMIT ---
+    document.getElementById('pma-form').onsubmit = function(e) {
+      e.preventDefault();
+      // Gather all values
+      const urgent = document.getElementById('pma-urgent').checked;
+      const normal = document.getElementById('pma-normal').checked;
+      const date = document.getElementById('pma-date').value;
+      const docno = document.getElementById('pma-docno').value.trim();
+      const model = document.getElementById('pma-model').value.trim();
+      const partno = document.getElementById('pma-partno').value.trim();
+      const descrip = document.getElementById('pma-descrip').value.trim();
+      const defqty = document.getElementById('pma-defqty').value.trim();
+      const invno = document.getElementById('pma-invno').value.trim();
+      const returnjs = document.getElementById('pma-returnjs').value.trim();
+      const defrate = document.getElementById('pma-defrate').value.trim();
+      const abdetail = document.getElementById('pma-abdetail').value.trim();
+      const detail = document.getElementById('pma-detail').value.trim();
+      const vqa = document.getElementById('pma-vqa').checked;
+      const accidental = document.getElementById('pma-accidental').checked;
+      const preparedby = document.getElementById('pma-preparedby').value.trim();
+      const checkedby = document.getElementById('pma-checkedby').value.trim();
+      const approvedby = document.getElementById('pma-approvedby').value.trim();
+      // Validation
+      if (!date || !docno || !model || !partno || !descrip || !defqty || !invno || !returnjs || !defrate || !abdetail || !detail || !preparedby || !checkedby || !approvedby) {
+        alert("Please fill in all required fields!"); return;
+      }
+      // Part rows (up to 4)
+      const partNos = Array.from(document.querySelectorAll('.pma-partno'));
+      const remarks = Array.from(document.querySelectorAll('.pma-remark'));
+      const imgs = Array.from(document.querySelectorAll('.pma-img'));
+      let parts = [];
+      let imgPromises = [];
+      for (let i=0;i<4;i++) {
+        let pnum = partNos[i].value.trim();
+        let rem = remarks[i].value.trim();
+        let file = imgs[i].files[0];
+        if (pnum && !rem) { alert(`Remark required for part row #${i+1}`); return; }
+        if (!pnum && !rem && !file) continue;
+        if (pnum || rem || file) {
+          let partObj = { partno: pnum, remark: rem, img: "" };
+          if (file) {
+            let prom = new Promise(res => {
+              const reader = new FileReader();
+              reader.onload = function(e) { partObj.img = e.target.result; res(); };
+              reader.readAsDataURL(file);
+            });
+            imgPromises.push(prom);
+          }
+          parts.push(partObj);
+        }
+      }
+      Promise.all(imgPromises).then(() => {
+        // Save report
+        let list = getPmaReports();
+        list.push({
+          urgent, normal, date, docno, model, partno, descrip, defqty, invno, returnjs, defrate, abdetail, detail, vqa, accidental,
+          preparedby, checkedby, approvedby, parts
+        });
+        setPmaReports(list);
+        closePmaModal();
+        renderPmaList();
+      });
+    };
+    // --- PMA VIEW ---
+    function viewPmaReport(idx) {
+      const rep = getPmaReports()[idx];
+      let html = `
+      <div style="font-size:1.06em;">
+        <div style="margin-bottom:7px;"><b>URGENT:</b> ${rep.urgent ? "☑" : "□"} &nbsp; <b>NORMAL:</b> ${rep.normal ? "☑" : "□"} &nbsp; <b>DATE:</b> ${rep.date} &nbsp; <b>Doc.No.:</b> ${rep.docno}</div>
+        <div><b>MODEL:</b> ${rep.model} &nbsp; <b>PART NO.:</b> ${rep.partno}</div>
+        <div><b>DESCRIP:</b> ${rep.descrip}</div>
+        <div><b>DEFECT QTY:</b> ${rep.defqty} &nbsp; <b>Invoice No.:</b> ${rep.invno}</div>
+        <div><b>Return JS:</b> ${rep.returnjs} &nbsp; <b>Defect Rate:</b> ${rep.defrate}</div>
+        <div style="margin-top:6px;"><b>Abnormal Detail/Define Issue:</b><br>${rep.abdetail}</div>
+        <div style="margin-top:6px;"><b>Detail:</b><br>${rep.detail}</div>
+        <div style="margin-top:10px;font-weight:bold;">Part Rows:</div>
+        <div>
+          <table style="width:100%;border-collapse:collapse;margin-bottom:10px;">
+            <tr style="background:#ffb300;color:#222;">
+              <th>NO.</th><th>Part Number</th><th>Remark</th><th>Image</th>
+            </tr>
+            ${rep.parts.map((p,i)=>`
+              <tr>
+                <td>${i+1}</td>
+                <td>${p.partno||""}</td>
+                <td>${p.remark||""}</td>
+                <td>${p.img?`<img src="${p.img}" style="max-width:55px;max-height:45px;border-radius:4px;" onclick="openLightbox('${p.img}')" />`:""}</td>
+              </tr>`).join('')}
+          </table>
+        </div>
+        <div>
+          <label><b>PLEASE VQA/SCQA RESPONSE:</b> ${rep.vqa?"☑":"□"}</label> &nbsp; 
+          <label><b>ACCIDENTAL INFORM VQA/SCQA:</b> ${rep.accidental?"☑":"□"}</label>
+        </div>
+        <div style="margin-top:10px;">
+          <b>PREPARED BY:</b> ${rep.preparedby} &nbsp; 
+          <b>CHECKED BY:</b> ${rep.checkedby} &nbsp;
+          <b>APPROVED BY:</b> ${rep.approvedby}
+        </div>
+      </div>
+      `;
+      document.getElementById('pma-view-content').innerHTML = html;
+      document.getElementById('pma-view-modal-bg').classList.remove('hidden');
+      // Attach PDF/CSV
+      document.getElementById('pma-pdf-btn').onclick = function() { downloadPmaPdf(rep); };
+      document.getElementById('pma-csv-btn').onclick = function() { downloadPmaCsv(rep); };
+    }
+    function closePmaViewModal() {
+      document.getElementById('pma-view-modal-bg').classList.add('hidden');
+      document.getElementById('pma-view-content').innerHTML = '';
+    }
+    // --- PMA CSV/PDF ---
+    function downloadPmaCsv(rep) {
+      let csv = `"URGENT","NORMAL","DATE","Doc.No.","MODEL","PART NO.","DESCRIP","DEFECT QTY","Invoice No.","Return JS","Defect Rate","Abnormal Detail","Detail","VQA/SCQA RESPONSE","ACCIDENTAL INFORM","PREPARED BY","CHECKED BY","APPROVED BY"\n`;
+      csv += `"${rep.urgent}","${rep.normal}","${rep.date}","${rep.docno}","${rep.model}","${rep.partno}","${rep.descrip}","${rep.defqty}","${rep.invno}","${rep.returnjs}","${rep.defrate}","${(rep.abdetail||"").replace(/"/g,'""')}","${(rep.detail||"").replace(/"/g,'""')}","${rep.vqa}","${rep.accidental}","${rep.preparedby}","${rep.checkedby}","${rep.approvedby}"\n`;
+      csv += `"NO.","Part Number","Remark","Image"\n`;
+      rep.parts.forEach((p,i)=>{
+        csv += `"${i+1}","${p.partno||""}","${(p.remark||"").replace(/"/g,'""')}","${p.img?"[Image]":""}"\n`;
+      });
+      const blob = new Blob([csv], { type: "text/csv" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "PMA_Report.csv";
+      a.click(); URL.revokeObjectURL(a.href);
+    }
+    function downloadPmaPdf(rep) {
+      let w = window.open('', '', 'width=900,height=1100');
+      let html = `
+      <html><head><title>PMA Report</title></head>
+      <body style="font-family:Tahoma,Arial,sans-serif;">
+      <h2 style="color:#ffb300;">PRODUCT MATERIAL ABNORMAL NOTICE</h2>
+      <div style="margin-bottom:7px;"><b>URGENT:</b> ${rep.urgent ? "☑" : "□"} &nbsp; <b>NORMAL:</b> ${rep.normal ? "☑" : "□"} &nbsp; <b>DATE:</b> ${rep.date} &nbsp; <b>Doc.No.:</b> ${rep.docno}</div>
+      <div><b>MODEL:</b> ${rep.model} &nbsp; <b>PART NO.:</b> ${rep.partno}</div>
+      <div><b>DESCRIP:</b> ${rep.descrip}</div>
+      <div><b>DEFECT QTY:</b> ${rep.defqty} &nbsp; <b>Invoice No.:</b> ${rep.invno}</div>
+      <div><b>Return JS:</b> ${rep.returnjs} &nbsp; <b>Defect Rate:</b> ${rep.defrate}</div>
+      <div style="margin-top:6px;"><b>Abnormal Detail/Define Issue:</b><br>${rep.abdetail}</div>
+      <div style="margin-top:6px;"><b>Detail:</b><br>${rep.detail}</div>
+      <div style="margin-top:10px;font-weight:bold;">Part Rows:</div>
+      <table style="width:100%;border-collapse:collapse;margin-bottom:10px;">
+        <tr style="background:#ffb300;color:#222;">
+          <th>NO.</th><th>Part Number</th><th>Remark</th><th>Image</th>
+        </tr>
+        ${rep.parts.map((p,i)=>`
+          <tr>
+            <td>${i+1}</td>
+            <td>${p.partno||""}</td>
+            <td>${p.remark||""}</td>
+            <td>${p.img?`<img src="${p.img}" style="max-width:80px;max-height:60px;border-radius:4px;" />`:""}</td>
+          </tr>`).join('')}
+      </table>
+      <div>
+        <label><b>PLEASE VQA/SCQA RESPONSE:</b> ${rep.vqa?"☑":"□"}</label> &nbsp; 
+        <label><b>ACCIDENTAL INFORM VQA/SCQA:</b> ${rep.accidental?"☑":"□"}</label>
+      </div>
+      <div style="margin-top:10px;">
+        <b>PREPARED BY:</b> ${rep.preparedby} &nbsp; 
+        <b>CHECKED BY:</b> ${rep.checkedby} &nbsp;
+        <b>APPROVED BY:</b> ${rep.approvedby}
+      </div>
+      <br>
+      <button onclick="window.print()" style="padding:9px 23px;font-size:1.14em;background:#ffb300;color:#222;border:none;border-radius:6px;cursor:pointer;">Print / Save PDF</button>
+      </body></html>
+      `;
+      w.document.write(html);
+      w.document.close();
+    }
+    // --- On page load, check login status ---
+    checkAuth();
+  </script>
+</body>
+</html>
